@@ -3,7 +3,11 @@ from database import get_connection
 
 
 class ItemDAO(BaseDAO):
+    """DAO для работы с таблицей items (книги)."""
+
     TABLE_NAME = "items"
+
+    # ===== CRUD-методы =====
 
     def insert(self, title, year=None, rating=None, status_id=None, notes=None):
         """Добавить новую книгу. Возвращает ID новой записи."""
@@ -135,6 +139,41 @@ class ItemDAO(BaseDAO):
                 FROM statuses s
                 LEFT JOIN items i ON s.id = i.status_id
                 GROUP BY s.id
+                ORDER BY book_count DESC
+            """)
+            return cursor.fetchall()
+        finally:
+            conn.close()
+
+
+    def search_with_filters(self, where_clause, params, sort_by, sort_order):
+        """Поиск с фильтрацией и сортировкой (для операции 4 из SERVICE_DESIGN)."""
+        conn = self._get_conn()
+        try:
+            query = f"""
+                SELECT DISTINCT i.id, i.title, i.year, i.rating, s.name AS status_name
+                FROM items i
+                LEFT JOIN statuses s ON i.status_id = s.id
+                LEFT JOIN item_authors ia ON i.id = ia.item_id
+                LEFT JOIN authors a ON ia.author_id = a.id
+                WHERE {where_clause}
+                ORDER BY i.{sort_by} {sort_order}
+            """
+            cursor = conn.execute(query, params)
+            return cursor.fetchall()
+        finally:
+            conn.close()
+
+    def get_distribution_by_genre(self):
+        """Распределение книг по жанрам (для аналитики)."""
+        conn = self._get_conn()
+        try:
+            cursor = conn.execute("""
+                SELECT g.name AS genre_name, COUNT(i.id) AS book_count
+                FROM genres g
+                LEFT JOIN item_genres ig ON g.id = ig.genre_id
+                LEFT JOIN items i ON ig.item_id = i.id
+                GROUP BY g.id
                 ORDER BY book_count DESC
             """)
             return cursor.fetchall()
