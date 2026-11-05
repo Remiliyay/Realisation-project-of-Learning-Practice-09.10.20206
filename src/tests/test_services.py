@@ -21,11 +21,11 @@ def print_separator(title):
 
 
 def print_success(message):
-    print(f"  ✅ {message}")
+    print(f"  SUCCESS {message}")
 
 
 def print_error(message):
-    print(f"  ❌ {message}")
+    print(f"  FAILURE {message}")
 
 
 def test_add_book():
