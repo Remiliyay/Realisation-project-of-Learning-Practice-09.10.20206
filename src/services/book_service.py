@@ -194,6 +194,37 @@ class BookService:
         # Выполнение запроса
         return self.item_dao.search_with_filters(where_clause, params, sort_by, sort_order)
 
+    # ===== Методы для слоя UI =====
+
+    def get_statuses(self):
+        """Справочник статусов (для ComboBox / фильтра)."""
+        return self.status_dao.get_all()
+
+    def get_genres(self):
+        """Справочник жанров (для Listbox выбора)."""
+        return self.genre_dao.get_all()
+
+    def get_authors(self):
+        """Справочник авторов (для Listbox выбора)."""
+        return self.author_dao.get_all()
+
+    def get_book_for_edit(self, item_id):
+        """
+        Данные книги для предзаполнения окна редактирования.
+
+        Результат:
+            tuple — (книга (sqlite3.Row), список genre_ids, список author_ids)
+
+        Исключения:
+            RuntimeError — если книга не найдена
+        """
+        book = self.item_dao.get_by_id(item_id)
+        if book is None:
+            raise RuntimeError(f"Книга с ID {item_id} не найдена")
+        genre_ids = self.relation_dao.get_genre_ids(item_id)
+        author_ids = self.relation_dao.get_author_ids(item_id)
+        return book, genre_ids, author_ids
+
     # ===== Вспомогательные методы валидации =====
 
     def _validate_title(self, title):

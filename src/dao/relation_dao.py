@@ -42,3 +42,25 @@ class RelationDAO:
             conn.commit()
         finally:
             conn.close()
+
+    def get_genre_ids(self, item_id):
+        """Получить список ID жанров, привязанных к книге."""
+        conn = get_connection()
+        try:
+            cursor = conn.execute(
+                "SELECT genre_id FROM item_genres WHERE item_id = ?", (item_id,)
+            )
+            return [row["genre_id"] for row in cursor.fetchall()]
+        finally:
+            conn.close()
+
+    def get_author_ids(self, item_id):
+        """Получить список ID авторов, привязанных к книге."""
+        conn = get_connection()
+        try:
+            cursor = conn.execute(
+                "SELECT author_id FROM item_authors WHERE item_id = ?", (item_id,)
+            )
+            return [row["author_id"] for row in cursor.fetchall()]
+        finally:
+            conn.close()
