@@ -55,8 +55,8 @@ class ItemDAO(BaseDAO):
                     i.year,
                     i.rating,
                     s.name AS status_name,
-                    GROUP_CONCAT(DISTINCT a.name, ', ') AS authors,
-                    GROUP_CONCAT(DISTINCT g.name, ', ') AS genres
+                    GROUP_CONCAT(DISTINCT a.name) AS authors,
+                    GROUP_CONCAT(DISTINCT g.name) AS genres
                 FROM items i
                 LEFT JOIN statuses s ON i.status_id = s.id
                 LEFT JOIN item_authors ia ON i.id = ia.item_id
